@@ -28,7 +28,8 @@ const sidebar_menu: Array<ISidebarMenus> = [
     subMenus: [
       { title: "Product List", link: "/product-list" },
       { title: "Product Grid", link: "/product-grid" },
-      { title: "Add Product", link: "/add-product" }
+      { title: "Add Product", link: "/add-product" },
+      { title: "Upload Products Bulk", link: "/bulk-add-product" }
     ],
   },
   {

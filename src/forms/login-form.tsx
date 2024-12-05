@@ -25,6 +25,7 @@ const LoginForm = () => {
   // onSubmit
   const onSubmit =async (data: { email: string; password: string }) => {
     const res = await loginAdmin({ email: data.email, password: data.password });
+    console.log('what is the res login', res)
     if ("error" in res) {
       if ("data" in res.error) {
         const errorData = res.error.data as { message?: string };

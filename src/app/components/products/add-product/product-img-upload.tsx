@@ -6,7 +6,7 @@ import useUploadImage from "@/hooks/useUploadImg";
 
 type IPropType = {
   imgUrl: string;
-  setImgUrl: React.Dispatch<React.SetStateAction<string>>;
+  setImgUrl: ((url: string) => void) | React.Dispatch<React.SetStateAction<string>>;
   isSubmitted: boolean;
   default_img?: string;
 };

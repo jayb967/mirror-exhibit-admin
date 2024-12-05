@@ -15,6 +15,8 @@ const AddStaffArea = () => {
     <div className="grid grid-cols-12 gap-6">
       <div className="col-span-12 lg:col-span-4">
         <form onSubmit={handleSubmit(handleSubmitStuff)}>
+        <p className="mb-0 text-base text-black">Add New Staff</p>
+        <br/>
           <div className="mb-6 bg-white px-8 py-8 rounded-md">
             {/* category image upload */}
             <GlobalImgUpload isSubmitted={isSubmitted} setImage={setStaffImg} />
@@ -56,14 +58,14 @@ const AddStaffArea = () => {
 
             {/* admin role */}
             <div className="mb-6">
-              <p className="mb-0 text-base text-black">Admin role</p>
+              <p className="mb-0 text-base text-black">Role Type</p>
               <div className="category-add-select select-bordered">
                 <AdminRole handleChange={handleChange}/>
               </div>
             </div>
             {/* Product Type */}
 
-            <button type="submit" className="tp-btn px-7 py-2">Add Stuff</button>
+            <button type="submit" className="tp-btn px-7 py-2">Add Staff</button>
           </div>
         </form>
       </div>

@@ -47,7 +47,7 @@ export default function Sidebar({sideMenu,setSideMenu}:IProps) {
                   className="w-[140px]"
                   width={140}
                   height={43}
-                  src="/assets/img/logo/logo.svg"
+                  src="/assets/img/logo/logo-black.png"
                   alt="logo"
                   priority
                 />

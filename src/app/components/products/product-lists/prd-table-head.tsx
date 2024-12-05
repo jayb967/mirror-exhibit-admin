@@ -1,9 +1,18 @@
 import React from 'react';
 
-const ProductTableHead = () => {
+type ProductTableHeadProps = {
+  toggleSelectAll: (checked: boolean) => void;
+  selectAll: boolean;
+};
+
+const ProductTableHead: React.FC<ProductTableHeadProps> = ({ toggleSelectAll, selectAll }) => {
   return (
     <thead className="bg-white">
       <tr className="border-b border-gray6 text-tiny">
+      <th>
+        <input type="checkbox" checked={selectAll} onChange={(e) => toggleSelectAll(e.target.checked)} 
+        />
+      </th>
         <th scope="col" className="pr-8 py-3 text-tiny text-text2 uppercase font-semibold">
           Product
         </th>

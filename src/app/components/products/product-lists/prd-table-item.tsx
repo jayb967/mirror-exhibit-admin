@@ -3,10 +3,20 @@ import React, { useState } from "react";
 import { IProduct } from "@/types/product-type";
 import EditDeleteBtn from "../../button/edit-delete-btn";
 
-const ProductTableItem = ({ product }: { product: IProduct }) => {
+
+type ProductTableItemProps = {
+  product: IProduct;
+  toggleSelect: (id: string) => void;
+  selected: boolean;
+};
+
+const ProductTableItem: React.FC<ProductTableItemProps> = ({ product, toggleSelect, selected }) => {
 
   return (
     <tr className="bg-white border-b border-gray6 last:border-0 text-start mx-9">
+      <td>
+        <input type="checkbox" checked={selected} onChange={() => toggleSelect(product._id)} />
+      </td>
       <td className="pr-8 py-5 whitespace-nowrap">
         <a href="#" className="flex items-center space-x-5">
           <Image
@@ -31,14 +41,14 @@ const ProductTableItem = ({ product }: { product: IProduct }) => {
       <td className="px-3 py-3 text-end">
         <span
           className={`text-[11px] px-3 py-1 rounded-md leading-none font-medium text-end 
-          ${product.status === "active"? "text-success bg-success/10": "text-danger bg-danger/10"}`}
+          ${product.status === "active" ? "text-success bg-success/10" : "text-danger bg-danger/10"}`}
         >
           {product.status}
         </span>
       </td>
       <td className="px-9 py-3 text-end">
         <div className="flex items-center justify-end space-x-2">
-          <EditDeleteBtn id={product._id}/>
+          <EditDeleteBtn id={product._id} />
         </div>
       </td>
     </tr>
