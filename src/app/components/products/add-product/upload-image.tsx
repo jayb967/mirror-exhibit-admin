@@ -7,7 +7,7 @@ import useCloudinary from "@/hooks/useCloudinary";
 type IPropType = {
   file: { url: string; id: string };
   setFormData?: React.Dispatch<React.SetStateAction<string[]>>;
-  setImgUrl?: React.Dispatch<React.SetStateAction<string>>;
+  setImgUrl?: ((url: string) => void) | React.Dispatch<React.SetStateAction<string>>;
   isCenter?:boolean;
 };
 const UploadImage = ({ file,setFormData,setImgUrl,isCenter=false }: IPropType) => {

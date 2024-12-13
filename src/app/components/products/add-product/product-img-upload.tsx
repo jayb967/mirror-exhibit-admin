@@ -49,7 +49,7 @@ const ProductImgUpload = ({
             setImgUrl={setImgUrl}
           />
         ) : (
-          <DefaultUploadImg img={default_img} isLoading={isLoading} wh={100} />
+          <DefaultUploadImg img={imgUrl || default_img} isLoading={isLoading} wh={100} />
         )}
       </div>
 

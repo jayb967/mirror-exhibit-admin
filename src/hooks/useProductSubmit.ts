@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import slugify from "slugify";
 import { useForm } from "react-hook-form";
 import { useRouter } from 'next/navigation';
-import { useAddProductMutation, useEditProductMutation } from "@/redux/product/productApi";
+import { useAddProductMutation, useAddBulkProductsMutation, useEditProductMutation } from "@/redux/product/productApi";
 import { notifyError, notifySuccess } from "@/utils/toast";
 import { IAddProduct } from "@/types/product-type";
 
@@ -24,12 +24,9 @@ const useProductSubmit = () => {
   const [isSubmitted, setIsSubmitted] = useState<boolean>(true);
 
   const router = useRouter();
-
-
-  // useAddProductMutation
-  const [addProduct, { data: addProductData, isError, isLoading }] =
-    useAddProductMutation();
-  // useAddProductMutation
+  
+  const [addProduct] = useAddProductMutation();
+  const [addBulkProducts] = useAddBulkProductsMutation()
   const [editProduct, { data: editProductData, isError: editErr, isLoading: editLoading }] =
     useEditProductMutation();
 
@@ -96,6 +93,62 @@ const useProductSubmit = () => {
       }
     }
   };
+  // handle submit bulk products
+  const handleSubmitBulkProducts = async (data: any) => {    
+    const productsData: IAddProduct[] = []
+    for (let i = 0; i < data.length; i++) {
+      productsData.push({
+        sku: data[i].sku,
+        title: data[i].title,
+        parent: parent,
+        children: children,
+        tags: tags,
+        image: data[i].image,
+        originalPrice: Number(data[i].price),
+        price: Number(data[i].price),
+        discount: Number(data[i].discount),
+        relatedImages: relatedImages,
+        description: data[i].description,
+        brand: {
+          name: data[i].brand?.name,
+          id: data[i].brand?.id
+        },
+        category: {
+          name: data[i].category?.name,
+          id: data[i].category?.id
+        },
+        unit: data[i].unit,
+        quantity: Number(data[i].quantity),
+        colors: colors,
+        status: data[i].status,
+        variations: [...data[i].variations]
+      })
+    }
+    console.log('productsData', productsData)
+    if (Number(data.discount) > Number(data.price)) {
+      return notifyError("Product price must be gether than discount");
+    } else {
+      const res = await addBulkProducts(productsData);
+
+      if ("error" in res) {
+        if ("data" in res.error) {
+          const errorData = res.error.data as { message?: string, errorMessages?: { path: string, message: string }[] };
+          if (errorData.errorMessages && Array.isArray(errorData.errorMessages)) {
+            const errorMessage = errorData.errorMessages.map(err => err.message).join(", ");
+            return notifyError(errorMessage);
+          }
+          if (typeof errorData.message === "string") {
+            return notifyError(errorData.message);
+          }
+        }
+      }
+      else {
+        notifySuccess("Products created successFully");
+        setIsSubmitted(true);
+        router.push('/product-grid')
+      }
+    }    
+  };
   // handle edit product
   const handleEditProduct = async (data: any, id: string) => {
     // product data
@@ -147,6 +200,7 @@ const useProductSubmit = () => {
     category,
     setCategory,
     handleSubmitProduct,
+    handleSubmitBulkProducts,
     handleEditProduct,
     register,
     handleSubmit,

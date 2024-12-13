@@ -35,6 +35,14 @@ export interface ProductResponse {
   data: IProduct[];
 }
 
+export interface IVariation {
+  size: string,
+  weight: number,
+  price: number,
+  frameType: string,
+  image: string,
+}
+
 // IAddProduct
 export interface IAddProduct {
   sku: string;
@@ -62,4 +70,5 @@ export interface IAddProduct {
   type?: string;
   itemInfo?: string;
   status?: string;
+  variations?: IVariation[]
 }

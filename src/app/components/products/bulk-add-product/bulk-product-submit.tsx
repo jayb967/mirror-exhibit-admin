@@ -6,6 +6,7 @@ import Dropzone from "react-dropzone";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import ProductImgUpload from "../add-product/product-img-upload";
 import useProductSubmit from "@/hooks/useProductSubmit";
+import { useUploadImageMutation } from "@/redux/cloudinary/cloudinaryApi";
 
 type Variation = {
   size: string;
@@ -15,6 +16,11 @@ type Variation = {
   image: string;
 };
 
+enum ProductStatus {
+  active = 'active',
+  inactive = 'inactive'
+}
+
 type Product = {
   sku: string;
   title: string;
@@ -23,6 +29,7 @@ type Product = {
   image: string;
   tags?: string;
   variations: Variation[];
+  status: ProductStatus
 };
 
 const BulkProductSubmit = () => {
@@ -33,7 +40,8 @@ const BulkProductSubmit = () => {
     defaultValues: { products: [] },
   });
   const { fields, append } = useFieldArray({ control, name: "products" });
-  const { handleSubmitProduct } = useProductSubmit();
+  const { handleSubmitBulkProducts } = useProductSubmit();
+  const [uploadImage] = useUploadImageMutation();
 
   const preprocessCSV = async (data: any[]) => {
     const groupedProducts: Record<string, Product> = {};
@@ -45,23 +53,21 @@ const BulkProductSubmit = () => {
         if (!url) return "";
         try {
           const response = await fetch(url);
-          const blob = await response.blob();
+          const blob = await response.blob();          
+          const file = new File([blob], "image.jpg", { type: blob.type });          
+
           const formData = new FormData();
-          formData.append("file", blob, "image.jpg");
-          formData.append("upload_preset", "ml_default"); // Replace with your actual preset
-          const uploadResponse = await fetch("/api/cloudinary/add-img", {
-            method: "POST",
-            body: formData,
-          });
-      
-          const responseText = await uploadResponse.text();
-          try {
-            const uploadResult = JSON.parse(responseText);
-            return uploadResult.url; // Cloudinary returns the uploaded URL
-          } catch (jsonError) {
-            console.error(`Error parsing JSON response: ${responseText}`);
-            throw new Error(`Failed to parse JSON response from Cloudinary.`);
-          }
+          formData.append("image", file);
+          const uploadData = await uploadImage(formData);
+          
+          if ('data' in uploadData) {
+            const cloudinaryResponse = uploadData.data;
+            console.log('cloudinaryResponse.data.url', cloudinaryResponse.data.url)
+            return cloudinaryResponse.data.url;
+          } else {
+            console.error(`Error uploading image from ${url}:`);
+            return '';
+          }          
         } catch (error) {
           console.error(`Error uploading image from ${url}:`, error);
           return "";
@@ -84,6 +90,7 @@ const BulkProductSubmit = () => {
           image: "",
           tags: row.Tags || "",
           variations: [],
+          status: row["Status"] === ProductStatus.active ? ProductStatus.active : ProductStatus.inactive
         };
 
         groupedProducts[handle].image = await processImage(row["Image Src"]);
@@ -115,7 +122,7 @@ const BulkProductSubmit = () => {
     Papa.parse<Product>(text, {
       header: true,
       skipEmptyLines: true,
-      complete: async (results) => {
+      complete: async (results: any) => {
         const parsedData = results.data as Product[];
         const { processedData, missingFields } = await preprocessCSV(parsedData);
 
@@ -128,7 +135,7 @@ const BulkProductSubmit = () => {
 
         setIsProcessing(false); // End processing
       },
-      error: (err) => {
+      error: (err: any) => {
         setErrors([`Error reading file: ${err.message}`]);
         setIsProcessing(false);
       },
@@ -136,24 +143,22 @@ const BulkProductSubmit = () => {
   };
 
   const handleBulkSubmit = async (data: { products: Product[] }) => {
-    for (const product of data.products) {
-      if (!product.image) {
-        setErrors(["Some products are missing images."]);
-        return;
-      }
-      await handleSubmitProduct(product);
+    if (data.products.some(product => !product.image)) {
+      setErrors(["Some products are missing images."]);
+      return;
     }
+    await handleSubmitBulkProducts(data.products);
   };
 
   return (
     <div className="bg-white p-6 rounded-md shadow-md">
       <h4 className="text-lg font-bold mb-4">Bulk Upload Products</h4>
 
-      <Dropzone onDrop={handleDrop} accept={{ "text/csv": [".csv"] }}>
+      <Dropzone disabled={isProcessing} onDrop={handleDrop} accept={{ "text/csv": [".csv"] }}>
         {({ getRootProps, getInputProps }) => (
           <div
             {...getRootProps()}
-            className="border-dashed border-2 border-gray-400 p-6 rounded-md text-center cursor-pointer"
+            className={`border-dashed border-2 border-gray-400 p-6 rounded-md text-center ${isProcessing ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'}`}
           >
             <input {...getInputProps()} />
             <p>Drag and drop a CSV file here, or click to select a file</p>

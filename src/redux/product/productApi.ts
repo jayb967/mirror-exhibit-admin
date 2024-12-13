@@ -33,6 +33,17 @@ export const authApi = apiSlice.injectEndpoints({
       },
       invalidatesTags: ["AllProducts","SingleProduct"],
     }),
+    // add product
+    addBulkProducts: builder.mutation<IProductResponse, IAddProduct[]>({
+      query(data: IAddProduct[]) {
+        return {
+          url: `/api/products/add-bulk`,
+          method: "POST",
+          body: data,
+        };
+      },
+      invalidatesTags: ["AllProducts","SingleProduct"],
+    }),
     // edit product
     editProduct: builder.mutation<
       IProductEditResponse,
@@ -78,6 +89,7 @@ export const authApi = apiSlice.injectEndpoints({
 export const {
   useGetAllProductsQuery,
   useAddProductMutation,
+  useAddBulkProductsMutation,
   useEditProductMutation,
   useGetProductQuery,
   useDeleteProductMutation,

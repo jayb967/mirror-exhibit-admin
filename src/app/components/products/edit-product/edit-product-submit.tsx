@@ -118,7 +118,7 @@ const EditProductSubmit = ({ id }: { id: string }) => {
               control={control}
               setSelectBrand={setBrand}
               default_value={{
-                brand: product.brand.name,
+                brand: product.brand?.name,
                 unit: product.unit,
               }}
             />
@@ -152,8 +152,8 @@ const EditProductSubmit = ({ id }: { id: string }) => {
                   setParent={setParent}
                   setChildren={setChildren}
                   default_value={{
-                    parent: product.category.name,
-                    id: product.category.id,
+                    parent: product.category?.name,
+                    id: product.category?.id,
                     children: product.children,
                   }}
                 />
